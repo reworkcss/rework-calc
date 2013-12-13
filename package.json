@@ -1,0 +1,23 @@
+{
+  "name": "rework-calc",
+  "version": "0.2.1",
+  "description": "Adding calc() support to rework",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha -R spec"
+  },
+  "repository": "git://github.com/klei-dev/rework-calc.git",
+  "keywords": [
+    "rework",
+    "rework-plugins",
+    "css",
+    "calc"
+  ],
+  "author": "Joakim Bengtson <joakim@klei.se>",
+  "license": "MIT",
+  "devDependencies": {
+    "mocha": "~1.15.1",
+    "rework": "~0.18.3",
+    "chai": "~1.8.1"
+  }
+}

@@ -1,0 +1,14 @@
+body {
+  width: 100%;
+}
+
+body > header,
+body > section,
+body > footer {
+  width: calc(100% - 2em);
+}
+
+body > header {
+  height: 6em;
+  font-size: 3em;
+}
