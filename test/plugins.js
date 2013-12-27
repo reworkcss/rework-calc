@@ -15,12 +15,25 @@ var css = {
   }
 };
 
-describe('rework-calc', function(){
-  it('should add calculations support', function(){
+describe('rework-calc', function() {
+  it('should calculate expressions with only one unit involved', function() {
     rework(css.in('calc'))
-      .use(rework.references())
       .use(calc)
       .toString()
       .should.equal(css.out('calc'));
+  });
+
+  it('should calculate expressions with percents correctly', function () {
+    rework(css.in('calc-percent'))
+      .use(calc)
+      .toString()
+      .should.equal(css.out('calc-percent'));
+  });
+
+  it('should use CSS3 Calc function as fallback for expressions with multiple units', function () {
+    rework(css.in('calc-complex'))
+      .use(calc)
+      .toString()
+      .should.equal(css.out('calc-complex'));
   });
 });

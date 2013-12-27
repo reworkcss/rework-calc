@@ -1,0 +1,5 @@
+
+h2 {
+  font-size: calc(120% * 50%);
+  line-height: calc(2 * 50%);
+}
