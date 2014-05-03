@@ -36,4 +36,12 @@ describe('rework-calc', function() {
       .toString()
       .should.equal(css.out('calc-complex'));
   });
+
+  it('should handle vendor prefixed expressions', function () {
+    rework(css.in('calc-prefix'))
+      .use(calc)
+      .toString()
+      .should.equal(css.out('calc-prefix'));
+  });
+
 });

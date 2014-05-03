@@ -1,0 +1,14 @@
+
+body > header {
+  height: -webkit-calc(100% - 2em);
+  width: -moz-calc(50% - 2em);
+}
+
+body > nav {
+  height: -moz-calc(100px / 2);
+}
+
+h2 {
+  font-size: -webkit-calc(120% * 50%);
+  line-height: -moz-calc(2 * 50%);
+}
