@@ -1,12 +1,12 @@
 {
   "name": "rework-calc",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Adding calc() support to rework",
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha -R spec"
   },
-  "repository": "git://github.com/klei-dev/rework-calc.git",
+  "repository": "git://github.com/rework/rework-calc.git",
   "keywords": [
     "rework",
     "rework-plugins",
