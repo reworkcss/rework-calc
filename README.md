@@ -34,15 +34,15 @@ is left as is, to fallback to the CSS3 Calc feature.
 
 ```css
 :root {
-  var-main-font-size: 16px;
+  --main-font-size: 16px;
 }
 
 body {
-  font-size: var(main-font-size);
+  font-size: var(--main-font-size);
 }
 
 h1 {
-  font-size: calc(var(main-font-size) * 2);
+  font-size: calc(var(--main-font-size) * 2);
   height: calc(100px - 2em);
 }
 ```
@@ -50,10 +50,6 @@ h1 {
 **yields**:
 
 ```css
-:root {
-  var-main-font-size: 16px
-}
-
 body {
   font-size: 16px
 }
