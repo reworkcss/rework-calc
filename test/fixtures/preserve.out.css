@@ -1,0 +1,11 @@
+
+body {
+  width: 100%;
+}
+
+body > header {
+  height: 6em;
+  height: calc(3em * 2);
+  font-size: 3em;
+  font-size: calc(6em / 2);
+}
