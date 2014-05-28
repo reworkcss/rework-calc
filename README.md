@@ -30,7 +30,7 @@ particularly useful together with the [rework-vars](https://npmjs.org/package/re
 When multiple units are mixed together in the same expression, the calc() statement
 is left as is, to fallback to the CSS3 Calc feature.
 
-**Example** (with rework-vars enabled as well):
+**Example** (with [rework-vars](https://github.com/reworkcss/rework-vars) enabled as well):
 
 ```css
 :root {
@@ -61,6 +61,12 @@ h1 {
 ```
 
 See unit tests for another example.
+
+### Options
+
+#### `preserve` (default: `false`)
+
+Setting `preserve` to `true` will preserve  `calc()` in the output, so that they can be used by supporting browsers.
 
 ## Unit tests
 

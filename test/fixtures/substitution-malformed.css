@@ -1,0 +1,4 @@
+div {
+  /* missing closing ')' */
+  width: calc(10px - 5px;
+}
