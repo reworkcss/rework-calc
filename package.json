@@ -1,23 +1,33 @@
 {
   "name": "rework-calc",
   "version": "0.2.2",
-  "description": "Adding calc() support to rework",
-  "main": "index.js",
-  "scripts": {
-    "test": "./node_modules/.bin/mocha -R spec"
+  "description": "calc() support for Rework",
+  "dependencies": {
+    "balanced-match": "^0.1.0",
+    "rework-visit": "^1.0.0"
   },
-  "repository": "git://github.com/rework/rework-calc.git",
-  "keywords": [
-    "rework",
-    "rework-plugins",
-    "css",
-    "calc"
-  ],
-  "author": "Joakim Bengtson <joakim@klei.se>",
-  "license": "MIT",
   "devDependencies": {
     "mocha": "~1.15.1",
-    "rework": "~0.18.3",
+    "rework": "^1.0.0",
     "chai": "~1.8.1"
-  }
+  },
+  "files": [
+    "index.js"
+  ],
+  "scripts": {
+    "test": "mocha --no-colors",
+    "watch": "mocha --slow 30 --reporter spec --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/reworkcss/rework-calc.git"
+  },
+  "license": "MIT",
+  "keywords": [
+    "css",
+    "rework",
+    "rework-plugins",
+    "calculation",
+    "calc"
+  ]
 }
