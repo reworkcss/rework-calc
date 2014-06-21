@@ -1,7 +1,7 @@
 var assert = require('assert');
-var calc = require('../index')
 var rework = require('rework')
 var read = require('fs').readFileSync;
+var calc = require('..')
 
 function fixture(name){
   return read('test/fixtures/' + name + '.css', 'utf8').trim();
