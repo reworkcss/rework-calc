@@ -1,18 +1,16 @@
-var calc = require('../index'),
-    rework = require('rework'),
-    expect = require('chai').expect,
-    read = require('fs').readFileSync;
+var assert = require('assert');
+var calc = require('../index')
+var rework = require('rework')
+var read = require('fs').readFileSync;
 
 function fixture(name){
   return read('test/fixtures/' + name + '.css', 'utf8').trim();
 }
 
 function compareFixtures(name){
-  return expect(
-    rework(fixture(name + '.in'))
-    .use(calc)
-    .toString().trim()
-  ).to.equal(fixture(name + '.out'));
+  var actual = rework(fixture(name + '.in')).use(calc).toString().trim();
+  var expected = fixture(name + '.out');
+  return assert.equal(actual, expected);
 }
 
 describe('rework-calc', function() {
@@ -20,14 +18,14 @@ describe('rework-calc', function() {
     var output = function () {
       return rework(fixture('substitution-empty')).use(calc).toString();
     };
-    expect(output).to.Throw(Error, 'rework-calc: calc() must contain a non-whitespace string');
+    assert.throws(output, Error, 'rework-calc: calc() must contain a non-whitespace string');
   });
 
   it('throws an error when a calc function is malformed', function () {
     var output = function () {
       return rework(fixture('substitution-malformed')).use(calc).toString();
     };
-    expect(output).to.Throw(Error, 'rework-calc: missing closing ")" in the value "calc(10px - 5px"');
+    assert.throws(output, Error, 'rework-calc: missing closing ")" in the value "calc(10px - 5px"');
   });
 
 
