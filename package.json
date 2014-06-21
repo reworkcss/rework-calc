@@ -3,7 +3,7 @@
   "version": "0.2.2",
   "description": "calc() support for Rework",
   "dependencies": {
-    "balanced-match": "^0.1.0",
+    "balanced-match": "~0.1.0",
     "rework-visit": "^1.0.0"
   },
   "devDependencies": {
