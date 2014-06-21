@@ -8,12 +8,12 @@ var visit = require('rework-visit');
 /**
  * Constants.
  */
-var DEFAULT_UNIT = 'px',
-    CALC_FUNC_IDENTIFIER =  'calc',
 
-    EXPRESSION_OPT_VENDOR_PREFIX = '(\\-[a-z]+\\-)?',
-    EXPRESSION_METHOD_REGEXP = EXPRESSION_OPT_VENDOR_PREFIX + CALC_FUNC_IDENTIFIER,
-    EXPRESSION_REGEXP = '\\b' + EXPRESSION_METHOD_REGEXP + '\\(';
+var DEFAULT_UNIT = 'px';
+var CALC_FUNC_IDENTIFIER =  'calc';
+var EXPRESSION_OPT_VENDOR_PREFIX = '(\\-[a-z]+\\-)?';
+var EXPRESSION_METHOD_REGEXP = EXPRESSION_OPT_VENDOR_PREFIX + CALC_FUNC_IDENTIFIER;
+var EXPRESSION_REGEXP = '\\b' + EXPRESSION_METHOD_REGEXP + '\\(';
 
 /**
  * Module export.
@@ -47,27 +47,28 @@ module.exports = function calc(style) {
  * @returns {Array}
  * @api private
  */
+
 function getExpressionsFromValue(value) {
-    var parentheses = 0,
-        expressions = [],
+  var parentheses = 0;
+  var expressions = [];
+  var start = null;
+
+  // Parse value and extract expressions:
+  for (var i = 0; i < value.length; i++) {
+    if (value[i] == '(' && value.slice(i - 4, i) == CALC_FUNC_IDENTIFIER && !start) {
+      start = i;
+      parentheses++;
+    } else if (value[i] == '(' && start !== null) {
+      parentheses++;
+    } else if (value[i] == ')' && start !== null) {
+      if (!--parentheses) {
+        expressions.push(value.slice(start + 1, i));
         start = null;
-
-    // Parse value and extract expressions:
-    for (var i = 0; i < value.length; i++) {
-        if (value[i] == '(' && value.slice(i - 4, i) == CALC_FUNC_IDENTIFIER && !start) {
-            start = i;
-            parentheses++;
-        } else if (value[i] == '(' && start !== null) {
-            parentheses++;
-        } else if (value[i] == ')' && start !== null) {
-            if (!--parentheses) {
-                expressions.push(value.slice(start + 1, i));
-                start = null;
-            }
-        }
+      }
     }
+  }
 
-    return expressions;
+  return expressions;
 }
 
 /**
@@ -77,6 +78,7 @@ function getExpressionsFromValue(value) {
  * @param {Object} declaration
  * @api private
  */
+
 function resolveValue(value) {
   var balancedParens = balanced('(', ')', value);
   var calcStartIndex = value.indexOf(CALC_FUNC_IDENTIFIER + '(');
@@ -95,7 +97,7 @@ function resolveValue(value) {
     value = value.replace(expRegexp, result);
   });
 
-  return value
+  return value;
 }
 
 /**
@@ -105,51 +107,50 @@ function resolveValue(value) {
  * @returns {String}
  * @api private
  */
+
 function evaluateExpression (expression) {
-    var originalExpression = CALC_FUNC_IDENTIFIER + '(' + expression + ')';
+  var originalExpression = CALC_FUNC_IDENTIFIER + '(' + expression + ')';
 
-    // Remove method names for possible nested expressions:
-    expression = expression.replace(new RegExp(EXPRESSION_REGEXP, 'g'), '(');
+  // Remove method names for possible nested expressions:
+  expression = expression.replace(new RegExp(EXPRESSION_REGEXP, 'g'), '(');
 
-    var uniqueUnits = getUnitsInExpression(expression);
+  var uniqueUnits = getUnitsInExpression(expression);
 
-    // If multiple units let the expression be (i.e. fallback to CSS3 calc())
-    if (uniqueUnits.length > 1)
-        return false;
+  // If multiple units let the expression be (i.e. fallback to CSS3 calc())
+  if (uniqueUnits.length > 1) return false;
 
-    if (!uniqueUnits.length)
-        console.warn('No unit found in expression: "' + originalExpression + '", defaults to: "' + DEFAULT_UNIT + '"');
+  if (!uniqueUnits.length) {
+    console.warn('No unit found in expression: "' + originalExpression + '", defaults to: "' + DEFAULT_UNIT + '"');
+  }
 
-    // Use default unit if needed:
-    var unit = uniqueUnits[0] || DEFAULT_UNIT;
+  // Use default unit if needed:
+  var unit = uniqueUnits[0] || DEFAULT_UNIT;
 
-    if (unit === '%') {
-        // Convert percentages to numbers, to handle expressions like: 50% * 50% (will become: 25%):
-        expression = expression.replace(/\b[0-9\.]+%/g, function (percent) {
-            return parseFloat(percent.slice(0, -1)) * 0.01;
-        });
-    }
+  if (unit === '%') {
+    // Convert percentages to numbers, to handle expressions like: 50% * 50% (will become: 25%):
+    expression = expression.replace(/\b[0-9\.]+%/g, function (percent) {
+      return parseFloat(percent.slice(0, -1)) * 0.01;
+    });
+  }
 
-    // Remove units in expression:
-    var toEvaluate = expression.replace(new RegExp(unit, 'g'), '');
+  // Remove units in expression:
+  var toEvaluate = expression.replace(new RegExp(unit, 'g'), '');
 
-    var result;
+  var result;
 
-    try {
-        result = eval(toEvaluate);
-    } catch (e) {
-        return false;
-    }
+  try {
+    result = eval(toEvaluate);
+  } catch (e) {
+    return false;
+  }
 
-    // Transform back to a percentage result:
-    if (unit === '%')
-        result *= 100;
+  // Transform back to a percentage result:
+  if (unit === '%') result *= 100;
 
-    // We don't need units for zero values...
-    if (result !== 0)
-        result += unit;
+  // We don't need units for zero values...
+  if (result !== 0) result += unit;
 
-    return result;
+  return result;
 }
 
 /**
@@ -159,18 +160,18 @@ function evaluateExpression (expression) {
  * @returns {Array}
  * @api private
  */
+
 function getUnitsInExpression(expression) {
-    var uniqueUnits = [],
-        unitRegEx = /[\.0-9]([%a-z]+)/g,
-        matches;
+  var uniqueUnits = [];
+  var unitRegEx = /[\.0-9]([%a-z]+)/g;
+  var matches;
 
-    while (matches = unitRegEx.exec(expression)) {
-        if (!matches || !matches[1]) continue;
-        if (!~uniqueUnits.indexOf(matches[1]))
-            uniqueUnits.push(matches[1]);
-    }
+  while (matches = unitRegEx.exec(expression)) {
+    if (!matches || !matches[1]) continue;
+    if (!~uniqueUnits.indexOf(matches[1])) uniqueUnits.push(matches[1]);
+  }
 
-    return uniqueUnits;
+  return uniqueUnits;
 }
 
 /**
@@ -180,6 +181,7 @@ function getUnitsInExpression(expression) {
  * @return {String} Escaped string
  * @api private
  */
+
 function escapeExp(str) {
-    return String(str).replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1');
+  return String(str).replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1');
 }

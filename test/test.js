@@ -1,19 +1,19 @@
 var assert = require('assert');
-var rework = require('rework')
+var calc = require('..');
 var read = require('fs').readFileSync;
-var calc = require('..')
+var rework = require('rework');
 
-function fixture(name){
+function fixture(name) {
   return read('test/fixtures/' + name + '.css', 'utf8').trim();
 }
 
-function compareFixtures(name){
+function compareFixtures(name) {
   var actual = rework(fixture(name + '.in')).use(calc).toString().trim();
   var expected = fixture(name + '.out');
   return assert.equal(actual, expected);
 }
 
-describe('rework-calc', function() {
+describe('rework-calc', function () {
   it('throws an error when a calc function is empty', function () {
     var output = function () {
       return rework(fixture('substitution-empty')).use(calc).toString();
@@ -28,8 +28,7 @@ describe('rework-calc', function() {
     assert.throws(output, Error, 'rework-calc: missing closing ")" in the value "calc(10px - 5px"');
   });
 
-
-  it('should calculate expressions with only one unit involved', function() {
+  it('should calculate expressions with only one unit involved', function () {
     compareFixtures('calc');
   });
 
