@@ -1,6 +1,6 @@
 {
   "name": "rework-calc",
-  "version": "0.2.2",
+  "version": "1.0.0",
   "description": "calc() support for Rework",
   "dependencies": {
     "balanced-match": "~0.1.0",
