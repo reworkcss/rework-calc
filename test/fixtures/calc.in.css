@@ -4,6 +4,11 @@ body {
 }
 
 body > header {
-  height: calc(3em * 2);
-  font-size: calc(6em / 2);
+  prop: calc(3px * 2);
+  prop: calc(3px * 2) 1em;
+  prop: 1em calc(3px * 2);
+  prop: calc(3px * 2) 1em calc(3px * 2);
+  prop: 1em calc(3px * 2) 1em calc(3px * 2);
+  prop: 1em calc(3px * 2) 1em calc(3px * 2) 1em;
+  font-size: calc((6em / 2) + 1em);
 }

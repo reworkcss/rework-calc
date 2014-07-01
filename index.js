@@ -9,7 +9,6 @@ var visit = require('rework-visit');
  * Constants.
  */
 
-var DEFAULT_UNIT = 'px';
 var CALC_FUNC_IDENTIFIER =  'calc';
 var EXPRESSION_OPT_VENDOR_PREFIX = '(\\-[a-z]+\\-)?';
 var EXPRESSION_METHOD_REGEXP = EXPRESSION_OPT_VENDOR_PREFIX + CALC_FUNC_IDENTIFIER;
@@ -48,25 +47,22 @@ module.exports = function calc(style) {
  * @api private
  */
 
-function getExpressionsFromValue(value) {
-  var parentheses = 0;
+function getExpressions(value) {
   var expressions = [];
-  var start = null;
+  var fnRE = new RegExp(EXPRESSION_METHOD_REGEXP);
+  do {
+    var searchMatch = fnRE.exec(value);
+    var fn = searchMatch[0];
+    var calcStartIndex = searchMatch.index;
+    var calcRef = balanced('(', ')', value.substring(calcStartIndex));
 
-  // Parse value and extract expressions:
-  for (var i = 0; i < value.length; i++) {
-    if (value[i] == '(' && value.slice(i - 4, i) == CALC_FUNC_IDENTIFIER && !start) {
-      start = i;
-      parentheses++;
-    } else if (value[i] == '(' && start !== null) {
-      parentheses++;
-    } else if (value[i] == ')' && start !== null) {
-      if (!--parentheses) {
-        expressions.push(value.slice(start + 1, i));
-        start = null;
-      }
-    }
+    if (!calcRef) throw new Error('rework-calc: missing closing ")" in the value "' + value + '"');
+    if (calcRef.body === '') throw new Error('rework-calc: calc() must contain a non-whitespace string');
+
+    expressions.push({fn: fn, body: calcRef.body});
+    value = calcRef.post;
   }
+  while(fnRE.test(value));
 
   return expressions;
 }
@@ -80,21 +76,10 @@ function getExpressionsFromValue(value) {
  */
 
 function resolveValue(value) {
-  var balancedParens = balanced('(', ')', value);
-  var calcStartIndex = value.indexOf(CALC_FUNC_IDENTIFIER + '(');
-  var calcRef = balanced('(', ')', value.substring(calcStartIndex));
+  getExpressions(value).forEach(function (expression) {
+    var result = evaluateExpression(expression.body);
 
-  if (!balancedParens) throw new Error('rework-calc: missing closing ")" in the value "' + value + '"');
-  if (!calcRef || calcRef.body === '') throw new Error('rework-calc: calc() must contain a non-whitespace string');
-
-  getExpressionsFromValue(value).forEach(function (expression) {
-    var result = evaluateExpression(expression);
-
-    if (!result) return;
-
-    // Insert the evaluated value:
-    var expRegexp = new RegExp(EXPRESSION_METHOD_REGEXP + '\\(' + escapeExp(expression) + '\\)');
-    value = value.replace(expRegexp, result);
+    value = value.replace(expression.fn + '(' + expression.body + ')', result.resolved ? result.value : expression.fn + '(' + result.value + ')');
   });
 
   return value;
@@ -109,22 +94,20 @@ function resolveValue(value) {
  */
 
 function evaluateExpression (expression) {
-  var originalExpression = CALC_FUNC_IDENTIFIER + '(' + expression + ')';
-
   // Remove method names for possible nested expressions:
   expression = expression.replace(new RegExp(EXPRESSION_REGEXP, 'g'), '(');
 
-  var uniqueUnits = getUnitsInExpression(expression);
-
-  // If multiple units let the expression be (i.e. fallback to CSS3 calc())
-  if (uniqueUnits.length > 1) return false;
-
-  if (!uniqueUnits.length) {
-    console.warn('No unit found in expression: "' + originalExpression + '", defaults to: "' + DEFAULT_UNIT + '"');
+  var balancedExpr = balanced('(', ')', expression);
+  if (balancedExpr && balancedExpr.body !== '') {
+    expression = balancedExpr.pre + evaluateExpression(balancedExpr.body).value + balancedExpr.post;
   }
 
-  // Use default unit if needed:
-  var unit = uniqueUnits[0] || DEFAULT_UNIT;
+  var units = getUnitsInExpression(expression);
+
+  // If multiple units let the expression be (i.e. browser calc())
+  if (units.length > 1) return {resolved: false, value: expression};
+
+  var unit = units[0] || "";
 
   if (unit === '%') {
     // Convert percentages to numbers, to handle expressions like: 50% * 50% (will become: 25%):
@@ -135,13 +118,12 @@ function evaluateExpression (expression) {
 
   // Remove units in expression:
   var toEvaluate = expression.replace(new RegExp(unit, 'g'), '');
-
   var result;
 
   try {
     result = eval(toEvaluate);
   } catch (e) {
-    return false;
+    return {resolved: false, value: expression};
   }
 
   // Transform back to a percentage result:
@@ -150,7 +132,7 @@ function evaluateExpression (expression) {
   // We don't need units for zero values...
   if (result !== 0) result += unit;
 
-  return result;
+  return {resolved: true, value: result};
 }
 
 /**
@@ -172,16 +154,4 @@ function getUnitsInExpression(expression) {
   }
 
   return uniqueUnits;
-}
-
-/**
- * Escape string for inclusion in a regex pattern without conflicts
- *
- * @param  {String} str String to escape
- * @return {String} Escaped string
- * @api private
- */
-
-function escapeExp(str) {
-  return String(str).replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1');
 }
