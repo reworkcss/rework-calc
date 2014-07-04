@@ -2,6 +2,7 @@ var assert = require('assert');
 var calc = require('..');
 var read = require('fs').readFileSync;
 var rework = require('rework');
+var vars = require('rework-vars');
 
 function fixture(name) {
   return read('test/fixtures/' + name + '.css', 'utf8').trim();
@@ -37,10 +38,21 @@ describe('rework-calc', function () {
   });
 
   it('should use CSS3 Calc function as fallback for expressions with multiple units', function () {
-    compareFixtures('calc-complex');
+    compareFixtures('calc-fallback');
   });
 
   it('should handle vendor prefixed expressions', function () {
     compareFixtures('calc-prefix');
+  });
+
+  it('should resolve what is possible in complex calc whenever it\'s possible', function () {
+    var name = 'calc-complex'
+    var actual = rework(fixture(name + '.in'))
+      .use(vars())
+      .use(calc)
+      .toString()
+      .trim();
+    var expected = fixture(name + '.out');
+    return assert.equal(actual, expected);
   });
 });

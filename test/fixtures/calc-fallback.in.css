@@ -1,0 +1,6 @@
+
+body > header,
+body > section,
+body > footer {
+  width: calc(100% - 2em);
+}
