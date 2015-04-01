@@ -99,12 +99,10 @@ function evaluateExpression (expression) {
 
   var balancedExpr = balanced('(', ')', expression);
   if (balancedExpr && balancedExpr.body !== '') {
-    hasPre = Boolean(balancedExpr.pre);
-    expression = balancedExpr.pre +
-                 (hasPre ? '(' : '') +
-                 evaluateExpression(balancedExpr.body).value + 
-                 (hasPre ? ')' : '') +
-                 balancedExpr.post;
+    var hasPre = Boolean(balancedExpr.pre);
+    expression = balancedExpr.pre + (hasPre ? '(' : '') +
+      evaluateExpression(balancedExpr.body).value + 
+      (hasPre ? ')' : '') + balancedExpr.post;
   }
 
   var units = getUnitsInExpression(expression);
