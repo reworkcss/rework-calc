@@ -45,6 +45,10 @@ describe('rework-calc', function () {
     compareFixtures('calc-prefix');
   });
 
+  it('should leave inner function calls untouched', function () {
+    compareFixtures('calc-functions');
+  });
+
   it('should resolve what is possible in complex calc whenever it\'s possible', function () {
     var name = 'calc-complex'
     var actual = rework(fixture(name + '.in'))

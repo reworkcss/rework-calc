@@ -1,0 +1,5 @@
+stuff {
+  inner-var: calc(var(--some-var) - 1rem) otherfn(blah);
+  inner-function: calc(somefn(value) + 10px);
+  width: 110px;
+}
